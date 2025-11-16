@@ -1,18 +1,17 @@
-
 import React, { useState, useCallback } from 'react';
 import { InputData, CalculationResults, ImprovementScenario } from './types';
 import { InputGroup } from './components/InputGroup';
 import { ResultCard } from './components/ResultCard';
 
 const initialInputData: InputData = {
-  totalHours: '10',
-  productiveHours: '5',
-  plannedTasks: '10',
-  completedTasks: '5',
-  valuePerHour: '100',
-  estimatedCostPerDistraction: '50',
-  distractions: '10',
-  recoveryTime: '5',
+  totalHours: '9',
+  productiveHours: '6',
+  plannedTasks: '9',
+  completedTasks: '7',
+  valuePerHour: '90',
+  estimatedCostPerDistraction: '40',
+  distractions: '6',
+  recoveryTime: '8',
 };
 
 const formatCurrency = (value: number, decimals: number): string => {
@@ -50,7 +49,6 @@ const App: React.FC = () => {
     const plannedTasks = parseFloat(inputs.plannedTasks) || 0;
     const completedTasks = parseFloat(inputs.completedTasks) || 0;
     const valuePerHour = parseFloat(inputs.valuePerHour) || 0;
-    const estimatedCostPerDistraction = parseFloat(inputs.estimatedCostPerDistraction) || 0;
     const distractions = parseFloat(inputs.distractions) || 0;
     const recoveryTime = parseFloat(inputs.recoveryTime) || 0;
 
@@ -59,20 +57,19 @@ const App: React.FC = () => {
       return;
     }
     
-    // Core Calculations
+    // Core Calculations based on new user example
     const productivityRate = (productiveHours / totalHours) * 100;
     const taskCompletionRate = (plannedTasks > 0 ? (completedTasks / plannedTasks) : 0) * 100;
     const timeLost = (distractions * recoveryTime) / 60;
-    const valueLost = (timeLost * valuePerHour) + (distractions * estimatedCostPerDistraction);
+    const valueLost = timeLost * valuePerHour; // Corrected Formula
     const taskEfficiency = productiveHours > 0 ? completedTasks / productiveHours : 0;
     
-    // Efficiency Score Calculation (weighted average, normalized to 10)
-    const TARGET_EFFICIENCY_FOR_SCORE = 1.25; // An assumption for scaling task efficiency to a 1-10 score
-    const normalizedTaskEfficiencyScore = Math.min(taskEfficiency / TARGET_EFFICIENCY_FOR_SCORE, 1) * 10;
+    // Efficiency Score Calculation (weighted average, normalized to 10) - Corrected Formula
+    const distractionManagementScore = productiveHours > 0 ? Math.max(0, (1 - timeLost / productiveHours)) * 10 : 0;
     const efficiencyScore = 
       (productivityRate / 10) * 0.4 + 
       (taskCompletionRate / 10) * 0.4 +
-      normalizedTaskEfficiencyScore * 0.2;
+      distractionManagementScore * 0.2;
 
     setResults({
       productivityRate,
@@ -90,9 +87,9 @@ const App: React.FC = () => {
       current: `${(parseFloat(inputs.distractions) || 0).toFixed(decimals)} distrações`,
       optimized: `${((parseFloat(inputs.distractions) || 0) * 0.5).toFixed(decimals)} distrações`,
       gain: `-${((parseFloat(inputs.distractions) || 0) * 0.5).toFixed(decimals)} distrações`,
+      // Corrected Formula
       addedValue: formatCurrency(
-        (((parseFloat(inputs.distractions) || 0) * 0.5 * (parseFloat(inputs.recoveryTime) || 0)) / 60) * (parseFloat(inputs.valuePerHour) || 0) +
-        ((parseFloat(inputs.distractions) || 0) * 0.5 * (parseFloat(inputs.estimatedCostPerDistraction) || 0)),
+        (((parseFloat(inputs.distractions) || 0) * 0.5 * (parseFloat(inputs.recoveryTime) || 0)) / 60) * (parseFloat(inputs.valuePerHour) || 0),
         decimals
       ),
     },
@@ -108,25 +105,26 @@ const App: React.FC = () => {
       current: `${results.taskEfficiency.toFixed(decimals)} tarefas/hora`,
       optimized: `${(results.taskEfficiency * 1.20).toFixed(decimals)} tarefas/hora`,
       gain: `+${(results.taskEfficiency * 0.20).toFixed(decimals)} tarefas/hora`,
+      // Corrected Formula
       addedValue: formatCurrency(
-        ((parseFloat(inputs.productiveHours) || 0) - ((parseFloat(inputs.productiveHours) || 0) / 1.2)) * (parseFloat(inputs.valuePerHour) || 0),
+        (parseFloat(inputs.productiveHours) || 0) * 0.20 * (parseFloat(inputs.valuePerHour) || 0),
         decimals
       ),
     },
   ] : [];
 
   return (
-    <div className="container mx-auto p-4 md:p-8 font-sans text-slate-800">
-      <header className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-slate-900">Análise de Produtividade</h1>
-        <p className="text-lg text-slate-600 mt-2">Insira seus dados para obter métricas detalhadas e insights.</p>
-      </header>
+    <div className="container mx-auto p-4 md:p-8 font-sans text-white">
+      <div className="text-center mb-10">
+        <h1 className="text-4xl font-bold text-white tracking-wide [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Análise de Produtividade</h1>
+        <p className="text-lg text-slate-300 mt-2 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Insira seus dados para obter métricas detalhadas e insights.</p>
+      </div>
 
       <main className="space-y-8">
         {/* Input Section */}
-        <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-slate-200">
-            <div className="border-b border-slate-200 pb-4 mb-6">
-                <h2 className="text-2xl font-semibold text-indigo-600">Entradas de Tempo & Tarefa</h2>
+        <div className="bg-white/10 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-2xl border border-white/20">
+            <div className="border-b border-white/20 pb-4 mb-6">
+                <h2 className="text-2xl font-semibold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Entradas de Tempo & Tarefa</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mb-6">
                 <InputGroup label="Total de Horas Disponíveis" name="totalHours" value={inputs.totalHours} onChange={handleInputChange} unit="hrs" />
@@ -135,8 +133,8 @@ const App: React.FC = () => {
                 <InputGroup label="Tarefas Concluídas" name="completedTasks" value={inputs.completedTasks} onChange={handleInputChange} />
             </div>
 
-            <div className="border-b border-slate-200 pb-4 mb-6 mt-8">
-                <h2 className="text-2xl font-semibold text-indigo-600">Métricas de Valor (Opcional)</h2>
+            <div className="border-b border-white/20 pb-4 mb-6 mt-8">
+                <h2 className="text-2xl font-semibold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Métricas de Valor (Opcional)</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 <InputGroup label="Valor do Seu Tempo (Por Hora)" name="valuePerHour" value={inputs.valuePerHour} onChange={handleInputChange} prefix="R$" />
@@ -145,17 +143,17 @@ const App: React.FC = () => {
                 <InputGroup label="Tempo Médio de Recuperação Por Distração" name="recoveryTime" value={inputs.recoveryTime} onChange={handleInputChange} unit="mins" />
             </div>
 
-             <div className="bg-slate-100 p-6 rounded-lg mt-8 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">Opções de Exibição</h3>
+             <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg mt-8 border border-white/10">
+                <h3 className="text-lg font-semibold text-white mb-4 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Opções de Exibição</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 items-center">
                     <div className="flex flex-col">
-                        <label htmlFor="decimals" className="mb-1.5 text-sm font-medium text-gray-700">Casas Decimais:</label>
+                        <label htmlFor="decimals" className="mb-1.5 text-sm font-medium text-slate-200 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Casas Decimais:</label>
                         <select
                             id="decimals"
                             name="decimals"
                             value={decimals}
                             onChange={(e) => setDecimals(parseInt(e.target.value))}
-                            className="w-full px-3 py-2 bg-white text-slate-900 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+                            className="w-full px-3 py-2 bg-slate-800/50 text-white border border-white/20 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition duration-150 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]"
                         >
                             <option value="0">0</option>
                             <option value="1">1</option>
@@ -170,23 +168,23 @@ const App: React.FC = () => {
                             name="showImprovements"
                             checked={showImprovements}
                             onChange={handleInputChange}
-                            className="h-5 w-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+                            className="h-5 w-5 bg-white/10 border-white/30 rounded text-slate-300 focus:ring-white/50"
                         />
-                        <label htmlFor="showImprovements" className="ml-2 text-sm font-medium text-gray-700">Mostrar cenários de melhoria</label>
+                        <label htmlFor="showImprovements" className="ml-2 text-sm font-medium text-slate-200 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Mostrar cenários de melhoria</label>
                     </div>
                 </div>
             </div>
 
-            <div className="flex items-center justify-start gap-4 mt-8 pt-6 border-t border-slate-200">
+            <div className="flex items-center justify-start gap-4 mt-8 pt-6 border-t border-white/20">
                 <button
                     onClick={calculateResults}
-                    className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-transform transform hover:scale-105"
+                    className="px-8 py-3 bg-white/20 text-white font-bold rounded-lg hover:bg-white/30 focus:outline-none focus:ring-4 focus:ring-white/50 transition-transform transform hover:scale-105 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]"
                 >
                     Calcular
                 </button>
                 <button
                     onClick={handleReset}
-                    className="px-8 py-3 bg-slate-200 text-slate-800 font-bold rounded-lg hover:bg-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-300 transition-colors"
+                    className="px-8 py-3 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20 focus:outline-none focus:ring-4 focus:ring-white/50 transition-colors [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]"
                 >
                     Redefinir
                 </button>
@@ -196,39 +194,39 @@ const App: React.FC = () => {
         {results && (
           <div className="space-y-8">
             {/* Results Dashboard */}
-            <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-slate-200">
-                <h2 className="text-2xl font-semibold text-indigo-600 mb-6 pb-4 border-b border-slate-200">Resultados da Análise de Produtividade</h2>
+            <div className="bg-white/10 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-2xl border border-white/20">
+                <h2 className="text-2xl font-semibold text-white mb-6 pb-4 border-b border-white/20 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Resultados da Análise de Produtividade</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <ResultCard title="Taxa de Produtividade" value={`${results.productivityRate.toFixed(decimals)}%`} description="Horas Produtivas / Total de Horas" isHighlighted />
                     <ResultCard title="Taxa de Conclusão de Tarefas" value={`${results.taskCompletionRate.toFixed(decimals)}%`} description="Concluídas / Tarefas Planejadas" />
                     <ResultCard title="Pontuação de Eficiência" value={`${results.efficiencyScore.toFixed(decimals)}`} description="De 10" />
                     <ResultCard title="Tempo Perdido com Distrações" value={`${results.timeLost.toFixed(decimals)} hrs`} description="Incluindo tempo de recuperação" />
-                    <ResultCard title="Valor do Tempo Perdido" value={formatCurrency(results.valueLost, decimals)} description="Baseado no valor por hora e custo por distração" />
+                    <ResultCard title="Valor do Tempo Perdido" value={formatCurrency(results.valueLost, decimals)} description="Baseado no valor por hora" />
                     <ResultCard title="Eficiência da Tarefa" value={`${results.taskEfficiency.toFixed(decimals)}`} description="Tarefas por hora produtiva" />
                 </div>
             </div>
 
             {/* Improvement Scenarios */}
             {showImprovements && (
-                 <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-slate-200">
-                    <h2 className="text-2xl font-semibold text-indigo-600 mb-6 pb-4 border-b border-slate-200">Cenários de Melhoria da Produtividade</h2>
+                 <div className="bg-white/10 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-2xl border border-white/20">
+                    <h2 className="text-2xl font-semibold text-white mb-6 pb-4 border-b border-white/20 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Cenários de Melhoria da Produtividade</h2>
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-slate-200">
-                            <thead className="bg-slate-100">
+                        <table className="min-w-full divide-y divide-white/20">
+                            <thead className="bg-white/10">
                                 <tr>
                                     {['Área de Melhoria', 'Atual', 'Otimizado', 'Ganho', 'Valor Adicionado'].map(header => (
-                                        <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">{header}</th>
+                                        <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">{header}</th>
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-slate-200">
+                            <tbody className="bg-transparent divide-y divide-white/20">
                                 {improvementScenarios.map((scenario, index) => (
-                                    <tr key={index} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{scenario.area}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{scenario.current}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{scenario.optimized}</td>
-                                        <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${scenario.gain.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>{scenario.gain}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-600">{scenario.addedValue}</td>
+                                    <tr key={index} className="hover:bg-white/5 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">{scenario.area}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">{scenario.current}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">{scenario.optimized}</td>
+                                        <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]`}>{scenario.gain}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">{scenario.addedValue}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -238,48 +236,47 @@ const App: React.FC = () => {
             )}
 
             {/* Calculation Details */}
-            <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-slate-200">
-                <h2 className="text-2xl font-semibold text-indigo-600 mb-6 pb-4 border-b border-slate-200">Detalhes do Cálculo</h2>
-                <div className="prose prose-slate max-w-none prose-h3:font-semibold prose-h3:text-slate-800 prose-strong:text-slate-900">
-                    <h3>Valores de Entrada:</h3>
+            <div className="bg-white/10 backdrop-blur-md p-6 md:p-8 rounded-xl shadow-2xl border border-white/20">
+                <h2 className="text-2xl font-semibold text-white mb-6 pb-4 border-b border-white/20 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Detalhes do Cálculo</h2>
+                <div className="prose prose-invert max-w-none prose-h3:font-semibold prose-h3:text-white prose-strong:text-white">
+                    <h3 className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Valores de Entrada:</h3>
                     <ul>
-                        <li>Total de Horas Disponíveis: {(parseFloat(inputs.totalHours) || 0).toFixed(decimals)} hrs</li>
-                        <li>Horas Produtivas: {(parseFloat(inputs.productiveHours) || 0).toFixed(decimals)} hrs</li>
-                        <li>Tarefas Planejadas: {inputs.plannedTasks}</li>
-                        <li>Tarefas Concluídas: {inputs.completedTasks}</li>
-                        <li>Valor por Hora: {formatCurrency(parseFloat(inputs.valuePerHour || '0'), decimals)}</li>
-                        <li>Custo Estimado por Distração: {formatCurrency(parseFloat(inputs.estimatedCostPerDistraction || '0'), decimals)}</li>
-                        <li>Número de Distrações: {inputs.distractions}</li>
-                        <li>Tempo Médio de Recuperação: {inputs.recoveryTime} minutos</li>
+                        <li className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Total de Horas Disponíveis: {(parseFloat(inputs.totalHours) || 0).toFixed(decimals)} hrs</li>
+                        <li className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Horas Produtivas: {(parseFloat(inputs.productiveHours) || 0).toFixed(decimals)} hrs</li>
+                        <li className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Tarefas Planejadas: {inputs.plannedTasks}</li>
+                        <li className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Tarefas Concluídas: {inputs.completedTasks}</li>
+                        <li className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Valor por Hora: {formatCurrency(parseFloat(inputs.valuePerHour || '0'), decimals)}</li>
+                        <li className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Custo Estimado por Distração: {formatCurrency(parseFloat(inputs.estimatedCostPerDistraction || '0'), decimals)}</li>
+                        <li className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Número de Distrações: {inputs.distractions}</li>
+                        <li className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Tempo Médio de Recuperação: {inputs.recoveryTime} minutos</li>
                     </ul>
 
-                    <h3>Passo 1: Calcular Taxa de Produtividade</h3>
-                    <p>Taxa de Produtividade = (Horas Produtivas ÷ Total de Horas) × 100</p>
-                    <p><code>({(parseFloat(inputs.productiveHours) || 0).toFixed(decimals)} hrs ÷ {(parseFloat(inputs.totalHours) || 0).toFixed(decimals)} hrs) × 100 = <strong>{results.productivityRate.toFixed(decimals)}%</strong></code></p>
+                    <h3 className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Passo 1: Calcular Taxa de Produtividade</h3>
+                    <p className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Taxa de Produtividade = (Horas Produtivas ÷ Total de Horas) × 100</p>
+                    <p className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]"><code>({(parseFloat(inputs.productiveHours) || 0).toFixed(decimals)} hrs ÷ {(parseFloat(inputs.totalHours) || 0).toFixed(decimals)} hrs) × 100 = <strong>{results.productivityRate.toFixed(decimals)}%</strong></code></p>
 
-                    <h3>Passo 2: Calcular Taxa de Conclusão de Tarefas</h3>
-                    <p>Taxa de Conclusão de Tarefas = (Tarefas Concluídas ÷ Tarefas Planejadas) × 100</p>
-                    <p><code>({(parseFloat(inputs.completedTasks) || 0)} ÷ {(parseFloat(inputs.plannedTasks) || 0)}) × 100 = <strong>{results.taskCompletionRate.toFixed(decimals)}%</strong></code></p>
+                    <h3 className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Passo 2: Calcular Taxa de Conclusão de Tarefas</h3>
+                    <p className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Taxa de Conclusão de Tarefas = (Tarefas Concluídas ÷ Tarefas Planejadas) × 100</p>
+                    <p className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]"><code>({(parseFloat(inputs.completedTasks) || 0)} ÷ {(parseFloat(inputs.plannedTasks) || 0)}) × 100 = <strong>{results.taskCompletionRate.toFixed(decimals)}%</strong></code></p>
                     
-                    <h3>Passo 3: Calcular Valor Perdido com Distrações</h3>
-                    <p>O valor perdido é a soma do custo do tempo de recuperação e do custo direto estimado por distração.</p>
-                    <p>Tempo de Recuperação em Horas = (Número de Distrações × Tempo Médio de Recuperação em Minutos) ÷ 60</p>
-                    <p><code>({(parseFloat(inputs.distractions) || 0)} × {(parseFloat(inputs.recoveryTime) || 0)}) ÷ 60 = <strong>{results.timeLost.toFixed(decimals)} hrs</strong></code></p>
-                    <p>Valor Perdido = (Tempo de Recuperação em Horas × Valor por Hora) + (Número de Distrações × Custo Estimado por Distração)</p>
-                    <p className="overflow-x-auto">
+                    <h3 className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Passo 3: Calcular Tempo Perdido devido a Distrações</h3>
+                    <p className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Tempo de Recuperação em Horas = (Número de Distrações × Tempo Médio de Recuperação em Minutos) ÷ 60</p>
+                    <p className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]"><code>({(parseFloat(inputs.distractions) || 0)} × {(parseFloat(inputs.recoveryTime) || 0)}) ÷ 60 = <strong>{results.timeLost.toFixed(decimals)} hrs</strong></code></p>
+                    <p className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Valor do Tempo Perdido = Tempo de Recuperação em Horas × Valor por Hora</p>
+                    <p className="overflow-x-auto [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">
                         <code>
-                        (({results.timeLost.toFixed(decimals)} hrs × {formatCurrency(parseFloat(inputs.valuePerHour || '0'), decimals)}) + ({(parseFloat(inputs.distractions) || 0)} × {formatCurrency(parseFloat(inputs.estimatedCostPerDistraction || '0'), decimals)})) = <strong>{formatCurrency(results.valueLost, decimals)}</strong>
+                        {results.timeLost.toFixed(decimals)} hrs × {formatCurrency(parseFloat(inputs.valuePerHour || '0'), decimals)} = <strong>{formatCurrency(results.valueLost, decimals)}</strong>
                         </code>
                     </p>
 
 
-                    <h3>Passo 4: Calcular Eficiência da Tarefa</h3>
-                    <p>Eficiência da Tarefa = Tarefas Concluídas ÷ Horas Produtivas</p>
-                    <p><code>{(parseFloat(inputs.completedTasks) || 0)} ÷ {(parseFloat(inputs.productiveHours) || 0).toFixed(decimals)} hrs = <strong>{results.taskEfficiency.toFixed(decimals)} tarefas por hora</strong></code></p>
+                    <h3 className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Passo 4: Calcular Eficiência da Tarefa</h3>
+                    <p className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Eficiência da Tarefa = Tarefas Concluídas ÷ Horas Produtivas</p>
+                    <p className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]"><code>{(parseFloat(inputs.completedTasks) || 0)} ÷ {(parseFloat(inputs.productiveHours) || 0).toFixed(decimals)} hrs = <strong>{results.taskEfficiency.toFixed(decimals)} tarefas por hora</strong></code></p>
 
-                    <h3>Passo 5: Calcular Pontuação Geral de Eficiência</h3>
-                    <p>A Pontuação de Eficiência combina taxa de produtividade (40%), conclusão de tarefas (40%) e eficiência da tarefa (20%), normalizada para uma pontuação de 10.</p>
-                    <p className="overflow-x-auto"><code>({results.productivityRate.toFixed(decimals)}% ÷ 10 × 0.4) + ({results.taskCompletionRate.toFixed(decimals)}% ÷ 10 × 0.4) + (Eficiência Normalizada × 0.2) = <strong>{results.efficiencyScore.toFixed(decimals)}</strong></code></p>
+                    <h3 className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">Passo 5: Calcular Pontuação Geral de Eficiência</h3>
+                    <p className="[text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">A Pontuação de Eficiência combina taxa de produtividade (40%), conclusão de tarefas (40%) e gerenciamento de distrações (20%), normalizada para uma pontuação de 10.</p>
+                    <p className="overflow-x-auto [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]"><code>({results.productivityRate.toFixed(decimals)}% ÷ 10 × 0.4) + ({results.taskCompletionRate.toFixed(decimals)}% ÷ 10 × 0.4) + (Pontuação de Distração × 0.2) = <strong>{results.efficiencyScore.toFixed(decimals)}</strong></code></p>
                 </div>
             </div>
           </div>

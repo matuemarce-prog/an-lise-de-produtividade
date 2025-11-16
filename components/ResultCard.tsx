@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface ResultCardProps {
@@ -10,10 +9,10 @@ interface ResultCardProps {
 
 export const ResultCard: React.FC<ResultCardProps> = ({ title, value, description, isHighlighted = false }) => {
   return (
-    <div className={`p-5 bg-white rounded-lg shadow-md border ${isHighlighted ? 'border-indigo-500 ring-2 ring-indigo-200' : 'border-slate-200'}`}>
-      <h3 className="text-sm font-semibold text-gray-600 truncate">{title}</h3>
-      <p className={`my-2 text-3xl font-bold ${isHighlighted ? 'text-indigo-600' : 'text-slate-800'}`}>{value}</p>
-      <p className="text-xs text-gray-500">{description}</p>
+    <div className={`p-5 bg-white/10 backdrop-blur-md rounded-lg shadow-lg border ${isHighlighted ? 'border-white ring-2 ring-white/30' : 'border-white/20'}`}>
+      <h3 className="text-sm font-semibold text-slate-200 truncate [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">{title}</h3>
+      <p className={`my-2 text-3xl font-bold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]`}>{value}</p>
+      <p className="text-xs text-slate-400 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">{description}</p>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
@@ -15,8 +14,21 @@
   }
 }
 </script>
+<style>
+      @keyframes moveGradient {
+        0%, 100% { background-position: 0% 0%; }
+        25% { background-position: 0% 100%; }
+        50% { background-position: 100% 100%; }
+        75% { background-position: 100% 0%; }
+      }
+      body {
+        background: linear-gradient(-45deg, #111827, #f9fafb, #374151, #e5e7eb);
+        background-size: 400% 400%;
+        animation: moveGradient 15s ease infinite;
+      }
+</style>
 </head>
-  <body class="bg-slate-50">
+  <body class="min-h-screen">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
