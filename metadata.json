@@ -1,0 +1,5 @@
+{
+  "name": "Calculadora de Produtividade",
+  "description": "Uma aplicação web para analisar a produtividade pessoal e de tarefas, fornecendo métricas detalhadas, cenários de melhoria e um detalhamento completo dos cálculos.",
+  "requestFramePermissions": []
+}
