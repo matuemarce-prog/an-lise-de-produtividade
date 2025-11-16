@@ -4,14 +4,14 @@ import { InputGroup } from './components/InputGroup';
 import { ResultCard } from './components/ResultCard';
 
 const initialInputData: InputData = {
-  totalHours: '9',
-  productiveHours: '6',
-  plannedTasks: '9',
-  completedTasks: '7',
-  valuePerHour: '90',
-  estimatedCostPerDistraction: '40',
-  distractions: '6',
-  recoveryTime: '8',
+  totalHours: '',
+  productiveHours: '',
+  plannedTasks: '',
+  completedTasks: '',
+  valuePerHour: '',
+  estimatedCostPerDistraction: '',
+  distractions: '',
+  recoveryTime: '',
 };
 
 const formatCurrency = (value: number, decimals: number): string => {
@@ -285,6 +285,15 @@ const App: React.FC = () => {
         </main>
       </div>
       <footer className="w-full">
+        <div className="meteor-shower">
+          <div className="meteor"></div>
+          <div className="meteor"></div>
+          <div className="meteor"></div>
+          <div className="meteor"></div>
+          <div className="meteor"></div>
+          <div className="meteor"></div>
+          <div className="meteor"></div>
+        </div>
         <div className="stars-container">
           <div className="stars"></div>
           <div className="stars2"></div>
